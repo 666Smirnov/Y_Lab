@@ -1,0 +1,159 @@
+import random
+
+
+board = list(range(1,101))
+
+num_rows = 10
+num_columns = 10
+matrix = [[None for j in range(num_rows)] for i in range(num_columns)]
+current_player = ''
+def draw_board(board):
+   '''Функция отрисовки игрового поля.'''
+   print("-" * 51)
+   n = 0
+   for i in range(10):
+       for j in range(10):
+           if len(str(board[j+i*10])) == 1:
+               print("| ", board[j + i * 10], end=' ')
+           else:
+               print ("|", board[j+i*10], end=' ')
+       print()
+       print("-" * 51)
+
+def take_input(player_token):
+   '''Фунция добавления О или Х на поле.'''
+   valid = False
+   while not valid:
+      if player_token == 'O':
+          player_answer = game_bot()
+      else:
+          player_answer = input("Куда поставим " + player_token+"? ")
+      try:
+         player_answer = int(player_answer)
+      except:
+         print("Некорректный ввод. Вы уверены, что ввели число?")
+         continue
+      if player_answer >= 1 and player_answer <= 101:
+         if(str(board[player_answer-1]) not in "XO"):
+            board[player_answer-1] = player_token
+            if player_answer == 100:
+                matrix[9][9] = check_token(player_token)
+            elif len(str(player_answer)) == 1:
+                m1 = int(str(player_answer)[0])
+                matrix[0][m1 - 1] = check_token(player_token)
+            else:
+                m1 = int(str(player_answer)[0])
+                m2 = int(str(player_answer)[1])
+                matrix[m1][m2-1] = check_token(player_token)
+            valid = True
+         else:
+            print("Эта клетка уже занята!")
+      else:
+        print("Некорректный ввод. Введите число от 1 до 100.")
+
+def check_fail():
+    '''Функция проверки проигрыша'''
+    if check_horizont() != None:
+        return check_horizont()
+    elif check_vertical() != None:
+        return check_vertical()
+    elif checkDiagonal_LR() != None:
+        return checkDiagonal_LR()
+    elif checkDiagonal_RL() != None:
+        return checkDiagonal_RL()
+
+def check_horizont():
+    '''Проверка пяти символов подряд по горизонтали'''
+    player = check_token(current_player)
+    for c in range(0, 9):
+        for r in range(0, 9):
+            if matrix[r][c] == player and matrix[r][c + 1] == player and matrix[r][
+                c + 2] == player and matrix[r][c + 3] == player and matrix[r][
+                c + 4] == player:
+                if player:
+                    return ('man')
+                else:
+                    return ('comp')
+
+def check_vertical():
+    '''Проверка пяти символов подряд по вертикали'''
+    player = check_token(current_player)
+    for c in range(0, 9):
+        for r in range(0, 9):
+            if matrix[r][c] == player and matrix[r + 1][c] == player and matrix[r + 2][
+                c] == player and matrix[r + 3][c] == player and matrix[r + 4][
+                c] == player:
+                if player:
+                    return ('man')
+                else:
+                    return ('comp')
+
+def checkDiagonal_LR():
+    '''Проверка пяти символов подряд по диагонали слева направо'''
+    player = check_token(current_player)
+    for c in range(0, 9):
+        for r in range(0, 9):
+            if matrix[r][c] == player and matrix[r + 1][c + 1] == player and matrix[r + 2][
+                c + 2] == player and matrix[r + 3][c + 3] == player and matrix[r + 4][
+                c + 4] == player:
+                if player:
+                    return ('man')
+                else:
+                    return ('comp')
+
+def checkDiagonal_RL():
+    '''Проверка пяти символов подряд по диагонали справа налево'''
+    player = check_token(current_player)
+    for c in range(0, 9):
+        for r in range(0, 9):
+            if matrix[r][c] == player and matrix[r - 1][c + 1] == player and matrix[r - 2][
+                c + 2] == player and matrix[r - 3][c + 3] == player and matrix[r - 4][
+                c + 4] == player:
+                if player:
+                    return ('man')
+                else:
+                    return ('comp')
+
+def check_token(player_token):
+    if player_token == "X":
+        return True
+    else:
+        return False
+
+def game_bot():
+    '''Функция игрового бота'''
+    while 1 == 1:
+        x = random.randint(0, 101)
+        if check_fail() == None:
+            return x
+            break
+
+def main(board):
+    '''Основной цикл'''
+    counter = 0
+    fail = False
+    while not fail:
+        draw_board(board)
+        global current_player
+        if counter % 2 == 0:
+            current_player = "X"
+            take_input("X")
+            tmp = check_fail()
+        else:
+            current_player = "O"
+            take_input("O")
+            tmp = check_fail()
+        counter += 1
+        if tmp == 'man':
+            print("Человек проиграл!")
+            fail = True
+            break
+        elif tmp == 'comp':
+            print("Компьютер проиграл!")
+            fail = True
+            break
+    draw_board(board)
+
+main(board)
+
+input("Нажмите Enter для выхода!")
